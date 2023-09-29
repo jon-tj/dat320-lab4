@@ -51,17 +51,37 @@ func (s *sjf) reassign() {
 
 // getNewJob finds a new job to run on the CPU, removes the job from the queue and returns the job
 func (s *sjf) getNewJob() *job.Job {
+
 	if len(s.queue) == 0 {
 		return nil
 	}
-	mini := 0
-	minDuration := s.queue[0].Remaining()
-	for i, job := range s.queue {
-		jobDuration := job.Remaining()
-		if jobDuration < minDuration {
-			minDuration = jobDuration
-			mini = i
+	sjfIndex := 0 //pos of the job in q
+	shortJob := s.queue[0]
+	//search each j to find shordy one
+	for i, curr_job := range s.queue {
+		if curr_job.GetEstimated() < shortJob.GetEstimated() {
+			sjfIndex = i
+			shortJob = curr_job
 		}
 	}
-	return s.queue[mini]
+	//remove shortest job
+	for i := sjfIndex; i < len(s.queue)-1; i++ {
+		s.queue[i] = s.queue[i+1]
+	}
+	s.queue = s.queue[:len(s.queue)-1]
+	return shortJob
 }
+// 	if len(s.queue) == 0 {
+// 		return nil
+// 	}
+// 	mini := 0
+// 	minDuration := s.queue[0].Remaining()
+// 	for i, job := range s.queue {
+// 		jobDuration := job.Remaining()
+// 		if jobDuration < minDuration {
+// 			minDuration = jobDuration
+// 			mini = i
+// 		}
+// 	}
+// 	return s.queue[mini]
+// }
